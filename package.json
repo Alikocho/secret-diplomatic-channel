@@ -1,0 +1,12 @@
+{
+  "name": "diplomatic-channel",
+  "version": "1.0.0",
+  "description": "Secret Diplomatic Channel for Reacting to the Past",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

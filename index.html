@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret Diplomatic Channel</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --paper-dark: #e8e0cc;
+    --brass: #b8860b;
+    --brass-light: #d4a017;
+    --brass-dim: #7a5c08;
+    --green-baize: #1a2e1a;
+    --green-mid: #2d4a2d;
+    --green-light: #3d6b3d;
+    --red-wax: #8b1a1a;
+    --red-bright: #c0392b;
+    --amber: #c8760a;
+    --type-display: 'Special Elite', serif;
+    --type-mono: 'Courier Prime', monospace;
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--green-baize);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px);
+    min-height: 100vh;
+    font-family: var(--type-mono);
+    color: var(--paper);
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--ink);
+    border-bottom: 3px solid var(--brass);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-header h1 {
+    font-family: var(--type-display);
+    font-size: 1.3rem;
+    color: var(--brass-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .site-header .subtitle {
+    font-size: 0.65rem;
+    color: rgba(184,134,11,0.5);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .session-badge {
+    background: var(--green-baize);
+    border: 1px solid var(--brass-dim);
+    color: var(--brass-light);
+    font-family: var(--type-mono);
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    letter-spacing: 0.12em;
+    display: none;
+  }
+  .api-status {
+    font-size: 0.65rem;
+    color: rgba(184,134,11,0.4);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── LANDING ── */
+  .landing {
+    max-width: 520px;
+    margin: 60px auto;
+    padding: 0 20px;
+    text-align: center;
+  }
+  .landing-seal {
+    width: 80px;
+    height: 80px;
+    border: 3px solid var(--brass);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 2rem;
+    color: var(--brass);
+    background: rgba(184,134,11,0.08);
+  }
+  .landing h2 {
+    font-family: var(--type-display);
+    font-size: 1.6rem;
+    color: var(--brass-light);
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .landing .tagline {
+    font-size: 0.75rem;
+    color: rgba(245,240,232,0.45);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+  .choice-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .choice-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(184,134,11,0.3);
+    padding: 24px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .choice-card:hover {
+    background: rgba(184,134,11,0.1);
+    border-color: var(--brass);
+  }
+  .choice-card .card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .choice-card .card-title {
+    font-family: var(--type-display);
+    font-size: 0.95rem;
+    color: var(--brass-light);
+    margin-bottom: 4px;
+  }
+  .choice-card .card-desc {
+    font-size: 0.68rem;
+    color: rgba(245,240,232,0.5);
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── FORMS ── */
+  .form-panel {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(184,134,11,0.25);
+    padding: 28px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .form-panel h3 {
+    font-family: var(--type-display);
+    color: var(--brass-light);
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(184,134,11,0.7);
+    margin-bottom: 6px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(184,134,11,0.3);
+    color: var(--paper);
+    font-family: var(--type-mono);
+    font-size: 0.88rem;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--brass);
+  }
+  .field select option { background: var(--ink); }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .btn {
+    background: var(--brass-dim);
+    border: 1px solid var(--brass);
+    color: var(--paper);
+    font-family: var(--type-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .btn:hover { background: var(--brass); color: var(--ink); }
+  .btn.danger { background: var(--red-wax); border-color: var(--red-bright); }
+  .btn.danger:hover { background: var(--red-bright); }
+  .btn.ghost {
+    background: transparent;
+    border-color: rgba(184,134,11,0.3);
+    color: rgba(245,240,232,0.5);
+  }
+  .btn.ghost:hover { border-color: var(--brass); color: var(--paper); background: rgba(184,134,11,0.08); }
+  .btn.sm { padding: 6px 14px; font-size: 0.68rem; width: auto; }
+  .btn.approve { background: #1a3a1a; border-color: #3d6b3d; color: #8bc88b; }
+  .btn.approve:hover { background: #2a5a2a; }
+  .btn.intercept { background: #1a1a3a; border-color: #3d3d8b; color: #8b8bff; }
+  .btn.intercept:hover { background: #2a2a5a; }
+
+  .back-link {
+    font-size: 0.65rem;
+    color: rgba(184,134,11,0.4);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 12px;
+    display: inline-block;
+  }
+  .back-link:hover { color: var(--brass); }
+
+  .code-display {
+    background: rgba(0,0,0,0.5);
+    border: 2px solid var(--brass);
+    padding: 18px;
+    text-align: center;
+    margin: 16px 0;
+  }
+  .code-display .code-val {
+    font-family: var(--type-display);
+    font-size: 2.4rem;
+    color: var(--brass-light);
+    letter-spacing: 0.3em;
+  }
+  .code-display .code-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(184,134,11,0.4);
+    margin-top: 4px;
+  }
+
+  /* ── INSTRUCTOR CONSOLE ── */
+  .console-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 56px);
+  }
+  .console-sidebar {
+    background: rgba(0,0,0,0.4);
+    border-right: 1px solid rgba(184,134,11,0.2);
+    padding: 20px 16px;
+  }
+  .console-sidebar h3 {
+    font-family: var(--type-display);
+    font-size: 0.78rem;
+    color: var(--brass-dim);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(184,134,11,0.15);
+    padding-bottom: 8px;
+  }
+  .faction-roster { list-style: none; }
+  .faction-roster li {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(184,134,11,0.08);
+  }
+  .faction-roster li .fname { color: var(--paper); }
+  .faction-roster li .fstatus {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .fstatus.claimed { color: #6bc96b; }
+  .fstatus.open { color: rgba(245,240,232,0.3); }
+
+  .console-main { padding: 24px; overflow-y: auto; }
+  .console-main h2 {
+    font-family: var(--type-display);
+    font-size: 1.1rem;
+    color: var(--brass-light);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .console-main .queue-meta {
+    font-size: 0.65rem;
+    color: rgba(245,240,232,0.35);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .dispatch-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(184,134,11,0.2);
+    border-left: 3px solid var(--brass-dim);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    position: relative;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .dispatch-card.pending { border-left-color: var(--amber); }
+  .dispatch-card.approved { border-left-color: #3d8b3d; opacity: 0.6; }
+  .dispatch-card.blocked { border-left-color: var(--red-wax); opacity: 0.5; }
+  .dispatch-card.forwarded { border-left-color: #3d3d8b; opacity: 0.6; }
+  .dispatch-card.held { border-left-color: #5a5a1a; opacity: 0.7; }
+
+  .dispatch-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .dispatch-routing {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--brass-light);
+  }
+  .dispatch-routing .arrow { color: rgba(184,134,11,0.4); margin: 0 6px; }
+  .dispatch-time {
+    font-size: 0.6rem;
+    color: rgba(245,240,232,0.25);
+    letter-spacing: 0.08em;
+  }
+  .dispatch-body {
+    font-size: 0.82rem;
+    color: var(--paper-dark);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    font-style: italic;
+    border-left: 2px solid rgba(184,134,11,0.15);
+    padding-left: 12px;
+  }
+  .dispatch-original {
+    font-size: 0.72rem;
+    color: rgba(245,240,232,0.35);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    padding-left: 12px;
+    border-left: 1px dashed rgba(184,134,11,0.2);
+  }
+  .dispatch-original .orig-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(184,134,11,0.3);
+    margin-bottom: 3px;
+  }
+  .dispatch-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .dispatch-status {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid;
+  }
+  .dispatch-status.approved { color: #6bc96b; border-color: #3d8b3d; }
+  .dispatch-status.blocked { color: #e07070; border-color: var(--red-wax); }
+  .dispatch-status.forwarded { color: #8b8bff; border-color: #3d3d8b; }
+  .dispatch-status.held { color: #c8c870; border-color: #5a5a1a; }
+
+  .forward-panel {
+    background: rgba(20,20,50,0.6);
+    border: 1px solid rgba(60,60,139,0.4);
+    padding: 12px 14px;
+    margin-top: 10px;
+    display: none;
+  }
+  .forward-panel.open { display: block; }
+  .forward-panel label {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(139,139,255,0.6);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .forward-panel select, .forward-panel textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(60,60,139,0.4);
+    color: var(--paper);
+    font-family: var(--type-mono);
+    font-size: 0.8rem;
+    padding: 8px 10px;
+    outline: none;
+    margin-bottom: 8px;
+  }
+  .forward-panel select option { background: var(--ink); }
+
+  .empty-queue {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(245,240,232,0.2);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .empty-queue .eq-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.3; }
+
+  /* ── FACTION VIEW ── */
+  .faction-layout {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 28px 20px;
+  }
+  .faction-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(184,134,11,0.2);
+    padding-bottom: 16px;
+  }
+  .faction-name {
+    font-family: var(--type-display);
+    font-size: 1.4rem;
+    color: var(--brass-light);
+    letter-spacing: 0.06em;
+  }
+  .faction-game {
+    font-size: 0.62rem;
+    color: rgba(245,240,232,0.35);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .compose-section {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(184,134,11,0.2);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .compose-section h3 {
+    font-family: var(--type-display);
+    font-size: 0.85rem;
+    color: var(--brass-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .compose-meta {
+    font-size: 0.62rem;
+    color: rgba(184,134,11,0.4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+
+  .inbox-section h3 {
+    font-family: var(--type-display);
+    font-size: 0.85rem;
+    color: var(--brass-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .telegram {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--brass-dim);
+    font-family: var(--type-mono);
+    position: relative;
+    animation: slideIn 0.3s ease;
+  }
+  .telegram.intercepted { border-left-color: #3d3d8b; }
+  .telegram-header {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(26,18,8,0.45);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .telegram-stamp {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(26,18,8,0.3);
+    border: 1px solid rgba(26,18,8,0.2);
+    padding: 2px 6px;
+    text-transform: uppercase;
+  }
+  .telegram-stamp.intercepted { color: rgba(60,60,139,0.6); border-color: rgba(60,60,139,0.4); }
+  .telegram-body {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .telegram-cover {
+    font-size: 0.75rem;
+    color: #3d3d8b;
+    font-style: italic;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(26,18,8,0.15);
+  }
+
+  .sent-item {
+    border: 1px solid rgba(184,134,11,0.15);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    color: rgba(245,240,232,0.45);
+  }
+  .sent-item .sent-status {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    float: right;
+  }
+  .sent-status.pending { color: var(--amber); }
+  .sent-status.approved { color: #6bc96b; }
+  .sent-status.blocked { color: #e07070; }
+  .sent-status.held { color: #c8c870; }
+
+  .notice-bar {
+    background: rgba(50,50,10,0.4);
+    border: 1px solid rgba(184,134,11,0.25);
+    border-left: 3px solid var(--amber);
+    padding: 10px 14px;
+    font-size: 0.72rem;
+    color: rgba(245,240,232,0.6);
+    margin-bottom: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  .api-key-section {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(184,134,11,0.15);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+  .api-key-section label {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(184,134,11,0.5);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .api-key-row { display: flex; gap: 8px; }
+  .api-key-row input {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(184,134,11,0.2);
+    color: var(--paper);
+    font-family: var(--type-mono);
+    font-size: 0.78rem;
+    padding: 7px 10px;
+    outline: none;
+  }
+  .api-key-row input:focus { border-color: var(--brass); }
+
+  /* ── TABS ── */
+  .tab-row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(184,134,11,0.2);
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: rgba(245,240,232,0.35);
+    font-family: var(--type-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active {
+    color: var(--brass-light);
+    border-bottom-color: var(--brass);
+  }
+  .tab-btn:hover:not(.active) { color: rgba(245,240,232,0.6); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  .poll-indicator {
+    font-size: 0.58rem;
+    color: rgba(184,134,11,0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 8px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+
+  .count-badge {
+    background: var(--red-wax);
+    color: var(--paper);
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    border-radius: 10px;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
+  /* Redact textarea */
+  .redact-row { display: flex; gap: 8px; margin-top: 6px; }
+
+  /* ── INSTRUCTOR COMPOSE ── */
+  .dispatch-type-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .dtype-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(184,134,11,0.18);
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+  }
+  .dtype-card:hover { border-color: rgba(184,134,11,0.5); background: rgba(184,134,11,0.07); }
+  .dtype-card.active { border-color: var(--brass); background: rgba(184,134,11,0.12); }
+  .dtype-icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .dtype-label {
+    font-family: var(--type-display);
+    font-size: 0.72rem;
+    color: var(--brass-light);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .dtype-desc {
+    font-size: 0.6rem;
+    color: rgba(245,240,232,0.35);
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+  }
+  .instructor-compose-panel {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(184,134,11,0.18);
+    padding: 20px;
+  }
+  .icp-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(184,134,11,0.6);
+    margin-bottom: 8px;
+  }
+  .icp-feedback {
+    margin-top: 12px;
+    font-size: 0.72rem;
+    color: #6bc96b;
+    letter-spacing: 0.06em;
+    min-height: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .dispatch-type-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .console-layout { grid-template-columns: 1fr; }
+    .console-sidebar { display: none; }
+    .choice-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <h1>Secret Diplomatic Channel</h1>
+    <div class="subtitle">Reacting to the Past · Encrypted Dispatch System</div>
+  </div>
+  <div class="header-right">
+    <div class="session-badge" id="headerSessionBadge"></div>
+    <div class="api-status" id="apiStatus">● OFFLINE</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════ LANDING ═══ -->
+<div class="screen active" id="screenLanding">
+  <div class="landing">
+    <div class="landing-seal">✦</div>
+    <h2>Diplomatic Cipher Office</h2>
+    <div class="tagline">All dispatches subject to interception</div>
+    <div class="choice-row" id="choiceRow">
+      <!-- instructor card injected by JS if ?instructor param present -->
+      <div class="choice-card" onclick="showScreen('screenStudentJoin')">
+        <div class="card-icon">📜</div>
+        <div class="card-title">Student / Faction</div>
+        <div class="card-desc">Join a session with your game code. Claim your faction and begin correspondence.</div>
+      </div>
+    </div>
+    <div id="apiKeySection" style="display:none">
+      <div class="api-key-section">
+        <label>Anthropic API Key (for period voice rewriting)</label>
+        <div class="api-key-row">
+          <input type="password" id="globalApiKey" placeholder="sk-ant-..." oninput="saveApiKey(this.value)">
+          <button class="btn sm" onclick="testApiKey()">Test</button>
+        </div>
+      </div>
+    </div>
+    <span class="back-link" style="color:rgba(184,134,11,0.25);font-size:0.6rem;letter-spacing:0.1em">
+      All messages stored locally in this session only
+    </span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ INSTRUCTOR SETUP ═══ -->
+<div class="screen" id="screenInstructorSetup">
+  <div class="landing">
+    <div class="landing-seal">🔐</div>
+    <h2>Open a Session</h2>
+    <div class="tagline">You control all dispatches</div>
+    <div class="form-panel">
+      <h3>Session Details</h3>
+      <div class="field">
+        <label>Instructor PIN (students will never see this)</label>
+        <input type="password" id="setupPin" placeholder="Choose a PIN — minimum 4 characters" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label>Game / Scenario</label>
+        <select id="setupGame">
+          <option value="July 1914">July 1914 — Juggernaut</option>
+          <option value="Japan 1941">Japan 1941 — Fate of a Nation</option>
+          <option value="Yalta 1945">Yalta 1945 — Restoring the World</option>
+          <option value="Custom">Custom scenario</option>
+        </select>
+      </div>
+      <div class="field" id="customGameField" style="display:none">
+        <label>Custom scenario name</label>
+        <input type="text" id="setupCustomGame" placeholder="e.g. Paris Peace Conference 1919">
+      </div>
+      <div class="field">
+        <label>Factions (one per line)</label>
+        <textarea id="setupFactions" rows="6">Germany
+Austria-Hungary
+Russia
+France
+Britain
+Serbia
+Ottoman Empire
+Italy</textarea>
+      </div>
+      <button class="btn" onclick="createSession()">Open Session</button>
+      <br><span class="back-link" onclick="showScreen('screenLanding')">← Back</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ STUDENT JOIN ═══ -->
+<div class="screen" id="screenStudentJoin">
+  <div class="landing">
+    <div class="landing-seal">🗝</div>
+    <h2>Join Session</h2>
+    <div class="tagline">Enter your game code to proceed</div>
+    <div class="form-panel">
+      <div class="field">
+        <label>Session Code</label>
+        <input type="text" id="joinCode" placeholder="e.g. JULY42" style="text-transform:uppercase;letter-spacing:0.2em;font-size:1.1rem" maxlength="8">
+      </div>
+      <button class="btn" onclick="joinSession()">Enter</button>
+      <br><span class="back-link" onclick="showScreen('screenLanding')">← Back</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ FACTION CLAIM ═══ -->
+<div class="screen" id="screenFactionClaim">
+  <div class="landing">
+    <div class="landing-seal">🏛</div>
+    <h2>Claim Your Faction</h2>
+    <div class="tagline" id="claimGameLabel"></div>
+    <div class="form-panel">
+      <div class="field">
+        <label>Available Factions</label>
+        <select id="claimFactionSelect"></select>
+      </div>
+      <div id="claimTakenMsg" style="display:none;font-size:0.72rem;color:#e07070;margin-bottom:10px;letter-spacing:0.05em">
+        That faction has already been claimed. Choose another.
+      </div>
+      <button class="btn" onclick="claimFaction()">Claim Faction</button>
+      <br><span class="back-link" onclick="showScreen('screenStudentJoin')">← Back</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ INSTRUCTOR PIN ═══ -->
+<div class="screen" id="screenInstructorPin">
+  <div class="landing">
+    <div class="landing-seal">🔒</div>
+    <h2>Instructor Access</h2>
+    <div class="tagline">Enter your session PIN to continue</div>
+    <div class="form-panel">
+      <div class="field">
+        <label>Session Code</label>
+        <input type="text" id="pinSessionCode" placeholder="e.g. JULY42" style="text-transform:uppercase;letter-spacing:0.2em;font-size:1.1rem" maxlength="8">
+      </div>
+      <div class="field">
+        <label>Instructor PIN</label>
+        <input type="password" id="pinEntry" placeholder="Your PIN" autocomplete="current-password">
+      </div>
+      <div id="pinError" style="display:none;font-size:0.72rem;color:#e07070;margin-bottom:10px;letter-spacing:0.05em">
+        Incorrect PIN. Try again.
+      </div>
+      <button class="btn" onclick="verifyPin()">Enter Console</button>
+      <br><span class="back-link" onclick="showScreen('screenLanding')">← Back</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ INSTRUCTOR CONSOLE ═══ -->
+<div class="screen" id="screenInstructor">
+  <div class="console-layout">
+    <!-- Sidebar -->
+    <aside class="console-sidebar">
+      <h3>Session</h3>
+      <div style="margin-bottom:20px">
+        <div style="font-size:0.65rem;color:rgba(184,134,11,0.45);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px">Game</div>
+        <div style="font-size:0.85rem;color:var(--paper)" id="sidebarGame"></div>
+        <div style="margin-top:10px;font-size:0.65rem;color:rgba(184,134,11,0.45);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px">Share Code</div>
+        <div style="font-family:var(--type-display);font-size:1.6rem;color:var(--brass-light);letter-spacing:0.22em" id="sidebarCode"></div>
+      </div>
+      <h3>Faction Roster</h3>
+      <ul class="faction-roster" id="factionRoster"></ul>
+      <div style="margin-top:20px">
+        <button class="btn sm ghost" onclick="closeSession()">Close Session</button>
+      </div>
+    </aside>
+    <!-- Main -->
+    <main class="console-main">
+      <h2>Dispatch Queue</h2>
+      <div class="queue-meta" id="queueMeta">All dispatches pass through this office</div>
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTab('tabPending')" id="btnPending">Pending <span id="pendingCount" class="count-badge" style="display:none">0</span></button>
+        <button class="tab-btn" onclick="switchTab('tabAll')" id="btnAll">All Dispatches</button>
+        <button class="tab-btn" onclick="switchTab('tabCompose')" id="btnCompose">Send Dispatch</button>
+        <button class="tab-btn" onclick="switchTab('tabArchive')" id="btnArchive">Archive</button>
+      </div>
+      <div class="tab-pane active" id="tabPending">
+        <div id="pendingQueue"></div>
+      </div>
+      <div class="tab-pane" id="tabAll">
+        <div id="allQueue"></div>
+      </div>
+      <div class="tab-pane" id="tabArchive">
+        <div id="archivePane" style="font-size:0.75rem;color:rgba(245,240,232,0.45);line-height:1.8"></div>
+      </div>
+
+      <!-- ── INSTRUCTOR COMPOSE TAB ── -->
+      <div class="tab-pane" id="tabCompose">
+
+        <!-- Mode selector -->
+        <div class="dispatch-type-row" id="dispatchTypeRow">
+          <div class="dtype-card active" data-type="direct" onclick="selectDispatchType('direct')">
+            <div class="dtype-icon">📡</div>
+            <div class="dtype-label">Telegraph Office</div>
+            <div class="dtype-desc">Sent as the Telegraph Office to one faction</div>
+          </div>
+          <div class="dtype-card" data-type="anonymous" onclick="selectDispatchType('anonymous')">
+            <div class="dtype-icon">🕵</div>
+            <div class="dtype-label">Anonymous Tip</div>
+            <div class="dtype-desc">No sender visible — origin unknown to recipient</div>
+          </div>
+          <div class="dtype-card" data-type="broadcast" onclick="selectDispatchType('broadcast')">
+            <div class="dtype-icon">📰</div>
+            <div class="dtype-label">Broadcast</div>
+            <div class="dtype-desc">All factions receive simultaneously</div>
+          </div>
+          <div class="dtype-card" data-type="impersonate" onclick="selectDispatchType('impersonate')">
+            <div class="dtype-icon">🎭</div>
+            <div class="dtype-label">Impersonate</div>
+            <div class="dtype-desc">Appears to come from a named faction</div>
+          </div>
+        </div>
+
+        <div class="instructor-compose-panel">
+
+          <!-- Direct / Telegraph Office -->
+          <div class="icp-section" id="icp-direct">
+            <div class="icp-label">FROM: Telegraph Office &nbsp;→&nbsp; TO:</div>
+            <div class="field"><select id="directRecipient"></select></div>
+            <div class="field"><textarea id="directBody" placeholder="Your message to this faction…" rows="4"></textarea></div>
+            <button class="btn" onclick="sendInstructorDispatch('direct')">Transmit from Telegraph Office</button>
+          </div>
+
+          <!-- Anonymous tip -->
+          <div class="icp-section" id="icp-anonymous" style="display:none">
+            <div class="icp-label">FROM: Unknown &nbsp;→&nbsp; TO:</div>
+            <div class="field"><select id="anonRecipient"></select></div>
+            <div class="field"><textarea id="anonBody" placeholder="Intelligence to pass anonymously…" rows="4"></textarea></div>
+            <button class="btn" onclick="sendInstructorDispatch('anonymous')">Transmit Anonymously</button>
+          </div>
+
+          <!-- Broadcast -->
+          <div class="icp-section" id="icp-broadcast" style="display:none">
+            <div class="icp-label">FROM: Telegraph Office &nbsp;→&nbsp; TO: All Factions</div>
+            <div class="field" style="margin-top:10px">
+              <label>Headline / Event Label (shown above message)</label>
+              <input type="text" id="broadcastHeadline" placeholder="e.g. BREAKING — SARAJEVO, 28 JUNE 1914">
+            </div>
+            <div class="field"><textarea id="broadcastBody" placeholder="Message delivered to every faction simultaneously…" rows="4"></textarea></div>
+            <button class="btn" onclick="sendInstructorDispatch('broadcast')">Broadcast to All Factions</button>
+          </div>
+
+          <!-- Impersonate -->
+          <div class="icp-section" id="icp-impersonate" style="display:none">
+            <div class="icp-label">Appears to come FROM:</div>
+            <div class="field"><select id="impersonateFrom"></select></div>
+            <div class="icp-label" style="margin-top:8px">Delivered TO:</div>
+            <div class="field"><select id="impersonateTo"></select></div>
+            <div class="field" style="margin-top:4px">
+              <label style="color:rgba(224,112,112,0.6);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase">
+                ⚠ The named sending faction will not know this was sent on their behalf
+              </label>
+            </div>
+            <div class="field"><textarea id="impersonateBody" placeholder="Message that will appear to come from the chosen faction…" rows="4"></textarea></div>
+            <button class="btn danger" onclick="sendInstructorDispatch('impersonate')">Send as Faction</button>
+          </div>
+
+          <div class="icp-feedback" id="icpFeedback"></div>
+        </div>
+      </div>
+
+      <div class="poll-indicator" id="pollIndicator">● Monitoring for dispatches</div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ FACTION VIEW ═══ -->
+<div class="screen" id="screenFaction">
+  <div class="faction-layout">
+    <div class="faction-header">
+      <div>
+        <div class="faction-name" id="factionTitle"></div>
+        <div class="faction-game" id="factionGame"></div>
+      </div>
+      <button class="btn sm ghost" onclick="leaveFaction()">Leave</button>
+    </div>
+
+    <div class="notice-bar">
+      ⚠ This channel is monitored. All dispatches are reviewed by the instructor before delivery. Other factions may become aware that secret communications exist — but not their content.
+    </div>
+
+    <div class="compose-section">
+      <h3>Compose Dispatch</h3>
+      <div class="field">
+        <label>To (faction)</label>
+        <select id="composeRecipient"></select>
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea id="composeBody" placeholder="Draft your dispatch here…" rows="4"></textarea>
+      </div>
+      <button class="btn" onclick="sendDispatch()" id="sendBtn">Transmit Dispatch</button>
+      <div class="compose-meta" id="composeMeta"></div>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchFactionTab('ftabInbox')" id="btnFtabInbox">
+        Inbox <span id="inboxCount" class="count-badge" style="display:none">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchFactionTab('ftabSent')" id="btnFtabSent">Sent</button>
+    </div>
+    <div class="tab-pane active" id="ftabInbox">
+      <div id="inboxMessages"></div>
+    </div>
+    <div class="tab-pane" id="ftabSent">
+      <div id="sentMessages"></div>
+    </div>
+    <div class="poll-indicator">● Checking for new dispatches</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════ STATE ═══════════════════════
+
+const STATE = {
+  apiKey: '',
+  role: null,        // 'instructor' | 'faction'
+  sessionCode: null,
+  game: null,
+  factions: [],
+  myFaction: null,
+  dispatches: [],    // all dispatches in this session
+  pollTimer: null
+};
+
+// ═══════════════════════ STORAGE HELPERS ═══════════════════════
+
+function storageKey(suffix) { return `sdc:${STATE.sessionCode}:${suffix}`; }
+
+async function storageSave(key, value) {
+  try {
+    await window.storage.set(key, JSON.stringify(value), true);
+  } catch(e) { console.warn('Storage save failed', e); }
+}
+
+async function storageLoad(key) {
+  try {
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : null;
+  } catch(e) { return null; }
+}
+
+async function storageDelete(key) {
+  try { await window.storage.delete(key, true); } catch(e) {}
+}
+
+// ═══════════════════════ API KEY ═══════════════════════
+
+function saveApiKey(v) {
+  STATE.apiKey = v.trim();
+  updateApiStatus();
+}
+
+function updateApiStatus() {
+  const el = document.getElementById('apiStatus');
+  if (STATE.apiKey && STATE.apiKey.startsWith('sk-ant-')) {
+    el.textContent = '● ONLINE';
+    el.style.color = '#6bc96b';
+  } else if (STATE.apiKey) {
+    el.textContent = '● KEY SET';
+    el.style.color = 'var(--amber)';
+  } else {
+    el.textContent = '● OFFLINE';
+    el.style.color = 'rgba(184,134,11,0.4)';
+  }
+}
+
+async function testApiKey() {
+  if (!STATE.apiKey) { alert('Enter an API key first.'); return; }
+  try {
+    const r = await callClaude('Say only: KEY VALID', [{ role: 'user', content: 'Confirm.' }], 20);
+    alert('Key works: ' + r.substring(0, 40));
+  } catch(e) { alert('Key error: ' + e.message); }
+}
+
+// ═══════════════════════ CLAUDE API ═══════════════════════
+
+async function callClaude(system, messages, maxTokens = 500) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages
+    })
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+}
+
+async function rewriteAsTelegram(from, to, body, game) {
+  if (!STATE.apiKey || !STATE.apiKey.startsWith('sk-ant-')) return body;
+  const system = `You are a period-authentic telegraph operator. Rewrite the following diplomatic message as it would appear in an actual period telegram or diplomatic cable for the scenario: ${game}. Use period-appropriate language, formal register, and telegraph conventions (STOP punctuation, dateline, brief but precise wording). Keep the strategic content intact but make it feel historically real. Return only the rewritten text, no preamble.`;
+  try {
+    return await callClaude(system, [{
+      role: 'user',
+      content: `FROM: ${from}\nTO: ${to}\nMESSAGE: ${body}`
+    }], 300);
+  } catch(e) { return body; }
+}
+
+// ═══════════════════════ SCREEN NAV ═══════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════ INSTRUCTOR SETUP ═══════════════════════
+
+document.getElementById('setupGame').addEventListener('change', function() {
+  document.getElementById('customGameField').style.display = this.value === 'Custom' ? 'block' : 'none';
+});
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c = '';
+  for (let i = 0; i < 6; i++) c += chars[Math.floor(Math.random() * chars.length)];
+  return c;
+}
+
+async function createSession() {
+  const pin = document.getElementById('setupPin').value.trim();
+  if (pin.length < 4) { alert('Choose a PIN of at least 4 characters.'); return; }
+
+  const gameVal = document.getElementById('setupGame').value;
+  const game = gameVal === 'Custom' ? document.getElementById('setupCustomGame').value.trim() : gameVal;
+  if (!game) { alert('Enter a scenario name.'); return; }
+  const factionsRaw = document.getElementById('setupFactions').value.trim();
+  if (!factionsRaw) { alert('Enter at least one faction.'); return; }
+  const factions = factionsRaw.split('\n').map(f => f.trim()).filter(Boolean);
+
+  STATE.sessionCode = generateCode();
+  STATE.game = game;
+  STATE.factions = factions;
+  STATE.role = 'instructor';
+
+  // Hash the PIN before storing — never store plain text
+  const pinHash = await hashPin(pin, STATE.sessionCode);
+
+  const sessionData = { game, factions, created: Date.now(), active: true, pinHash };
+  await storageSave(storageKey('session'), sessionData);
+  await storageSave(storageKey('claimed'), {});
+  await storageSave(storageKey('dispatches'), []);
+
+  document.getElementById('headerSessionBadge').textContent = STATE.sessionCode;
+  document.getElementById('headerSessionBadge').style.display = 'block';
+
+  bootInstructorConsole();
+  showScreen('screenInstructor');
+}
+
+// ═══════════════════════ STUDENT JOIN ═══════════════════════
+
+async function joinSession() {
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if (code.length < 4) { alert('Enter a valid session code.'); return; }
+  STATE.sessionCode = code;
+
+  const sessionData = await storageLoad(storageKey('session'));
+  if (!sessionData || !sessionData.active) {
+    alert('Session not found or closed. Check your code and try again.');
+    return;
+  }
+
+  STATE.game = sessionData.game;
+  STATE.factions = sessionData.factions;
+
+  const claimed = await storageLoad(storageKey('claimed')) || {};
+  const available = STATE.factions.filter(f => !claimed[f]);
+
+  if (available.length === 0) {
+    alert('All factions have been claimed in this session.');
+    return;
+  }
+
+  document.getElementById('claimGameLabel').textContent = sessionData.game;
+  const sel = document.getElementById('claimFactionSelect');
+  sel.innerHTML = '';
+  available.forEach(f => {
+    const o = document.createElement('option');
+    o.value = f; o.textContent = f;
+    sel.appendChild(o);
+  });
+  document.getElementById('claimTakenMsg').style.display = 'none';
+  showScreen('screenFactionClaim');
+}
+
+async function claimFaction() {
+  const faction = document.getElementById('claimFactionSelect').value;
+  const claimed = await storageLoad(storageKey('claimed')) || {};
+  if (claimed[faction]) {
+    document.getElementById('claimTakenMsg').style.display = 'block';
+    await joinSession();
+    return;
+  }
+  claimed[faction] = true;
+  await storageSave(storageKey('claimed'), claimed);
+
+  STATE.myFaction = faction;
+  STATE.role = 'faction';
+
+  document.getElementById('headerSessionBadge').textContent = faction + ' · ' + STATE.sessionCode;
+  document.getElementById('headerSessionBadge').style.display = 'block';
+
+  bootFactionView();
+  showScreen('screenFaction');
+}
+
+// ═══════════════════════ INSTRUCTOR CONSOLE ═══════════════════════
+
+function bootInstructorConsole() {
+  document.getElementById('sidebarGame').textContent = STATE.game;
+  document.getElementById('sidebarCode').textContent = STATE.sessionCode;
+  populateInstructorSelects();
+  renderFactionRoster();
+  renderQueues();
+  startPolling(renderQueues);
+}
+
+function populateInstructorSelects() {
+  const factions = STATE.factions;
+  ['directRecipient','anonRecipient'].forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = factions.map(f => `<option value="${f}">${f}</option>`).join('');
+  });
+  document.getElementById('broadcastHeadline').value = '';
+  const impFrom = document.getElementById('impersonateFrom');
+  const impTo   = document.getElementById('impersonateTo');
+  impFrom.innerHTML = factions.map(f => `<option value="${f}">${f}</option>`).join('');
+  impTo.innerHTML   = factions.map(f => `<option value="${f}">${f}</option>`).join('');
+  if (factions.length > 1) impTo.selectedIndex = 1;
+}
+
+async function renderFactionRoster() {
+  const claimed = await storageLoad(storageKey('claimed')) || {};
+  const list = document.getElementById('factionRoster');
+  list.innerHTML = STATE.factions.map(f => `
+    <li>
+      <span class="fname">${f}</span>
+      <span class="fstatus ${claimed[f] ? 'claimed' : 'open'}">${claimed[f] ? 'Joined' : 'Open'}</span>
+    </li>`).join('');
+}
+
+async function renderQueues() {
+  renderFactionRoster();
+  const dispatches = await storageLoad(storageKey('dispatches')) || [];
+  STATE.dispatches = dispatches;
+
+  const pending = dispatches.filter(d => d.status === 'pending');
+  const all = [...dispatches].reverse();
+
+  const pcEl = document.getElementById('pendingCount');
+  if (pending.length > 0) {
+    pcEl.textContent = pending.length;
+    pcEl.style.display = 'inline';
+  } else {
+    pcEl.style.display = 'none';
+  }
+
+  // Pending tab
+  const pQ = document.getElementById('pendingQueue');
+  if (pending.length === 0) {
+    pQ.innerHTML = `<div class="empty-queue"><div class="eq-icon">✦</div>No dispatches awaiting review</div>`;
+  } else {
+    pQ.innerHTML = pending.map(d => renderDispatchCard(d, true)).join('');
+  }
+
+  // All tab
+  document.getElementById('allQueue').innerHTML = all.length === 0
+    ? `<div class="empty-queue"><div class="eq-icon">✦</div>No dispatches yet</div>`
+    : all.map(d => renderDispatchCard(d, d.status === 'pending')).join('');
+
+  // Archive as plain text
+  document.getElementById('archivePane').innerHTML = dispatches.length === 0
+    ? '<div class="empty-queue"><div class="eq-icon">✦</div>Archive is empty</div>'
+    : dispatches.map(d => `
+      <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(184,134,11,0.1)">
+        <span style="color:var(--brass-dim)">[${fmtTime(d.created)}]</span>
+        <span style="color:var(--paper)"> ${d.from} → ${d.to}</span>
+        <span style="color:rgba(245,240,232,0.3)"> · ${d.status.toUpperCase()}</span>
+        <br><span style="color:rgba(245,240,232,0.4);font-size:0.72rem">${d.periodText || d.body}</span>
+      </div>`).join('');
+
+  document.getElementById('queueMeta').textContent =
+    `${dispatches.length} total · ${pending.length} pending · session ${STATE.sessionCode}`;
+}
+
+function renderDispatchCard(d, showActions) {
+  const statusBadge = showActions ? '' : `<span class="dispatch-status ${d.status}">${d.status}</span>`;
+  const forwardOptions = STATE.factions
+    .filter(f => f !== d.from && f !== d.to)
+    .map(f => `<option value="${f}">${f}</option>`).join('');
+
+  return `
+  <div class="dispatch-card ${d.status}" id="card-${d.id}">
+    <div class="dispatch-header">
+      <div class="dispatch-routing">
+        ${d.from} <span class="arrow">→</span> ${d.to}
+        ${d.forwardedTo ? `<span class="arrow">→</span> <span style="color:#8b8bff">${d.forwardedTo} (intercepted)</span>` : ''}
+      </div>
+      <div class="dispatch-time">${fmtTime(d.created)}</div>
+    </div>
+    ${d.periodText && d.periodText !== d.body ? `
+      <div class="dispatch-body">${escHtml(d.periodText)}</div>
+      <div class="dispatch-original"><div class="orig-label">Original text</div>${escHtml(d.body)}</div>
+    ` : `<div class="dispatch-body">${escHtml(d.body)}</div>`}
+    <div class="dispatch-actions">
+      ${statusBadge}
+      ${showActions ? `
+        <button class="btn sm approve" onclick="decideDispatch('${d.id}','approved')">Approve</button>
+        <button class="btn sm" style="background:#3a2a08;border-color:#7a5c08;color:#d4a017" onclick="decideDispatch('${d.id}','held')">Hold</button>
+        <button class="btn sm danger" onclick="decideDispatch('${d.id}','blocked')">Block</button>
+        <button class="btn sm intercept" onclick="toggleForward('${d.id}')">Intercept ▾</button>
+      ` : ''}
+    </div>
+    <div class="forward-panel" id="fwd-${d.id}">
+      <label>Forward intercepted copy to:</label>
+      <select id="fwdTarget-${d.id}">${forwardOptions}</select>
+      <label>Cover note (optional, appears to recipient as an anonymous tip):</label>
+      <textarea id="fwdNote-${d.id}" rows="2" placeholder="Intelligence suggests…"></textarea>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm intercept" onclick="forwardDispatch('${d.id}')">Send Intercept</button>
+        <button class="btn sm ghost" onclick="toggleForward('${d.id}')">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleForward(id) {
+  const p = document.getElementById('fwd-' + id);
+  p.classList.toggle('open');
+}
+
+async function decideDispatch(id, status) {
+  const dispatches = await storageLoad(storageKey('dispatches')) || [];
+  const d = dispatches.find(x => x.id === id);
+  if (!d) return;
+  d.status = status;
+  d.decidedAt = Date.now();
+  await storageSave(storageKey('dispatches'), dispatches);
+  renderQueues();
+}
+
+async function forwardDispatch(id) {
+  const dispatches = await storageLoad(storageKey('dispatches')) || [];
+  const d = dispatches.find(x => x.id === id);
+  if (!d) return;
+
+  const target = document.getElementById('fwdTarget-' + id).value;
+  const note = document.getElementById('fwdNote-' + id).value.trim();
+
+  // Approve the original
+  d.status = 'forwarded';
+  d.forwardedTo = target;
+  d.decidedAt = Date.now();
+
+  // Create an intercept copy
+  const intercept = {
+    id: 'int-' + Date.now(),
+    from: '[ Intelligence ]',
+    to: target,
+    body: d.body,
+    periodText: d.periodText || d.body,
+    coverNote: note || null,
+    isIntercept: true,
+    originalFrom: d.from,
+    originalTo: d.to,
+    status: 'approved',
+    created: Date.now(),
+    decidedAt: Date.now()
+  };
+  dispatches.push(intercept);
+  await storageSave(storageKey('dispatches'), dispatches);
+  renderQueues();
+}
+
+function switchTab(id) {
+  document.querySelectorAll('#screenInstructor .tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#screenInstructor .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map = { tabPending: 'btnPending', tabAll: 'btnAll', tabCompose: 'btnCompose', tabArchive: 'btnArchive' };
+  document.getElementById(map[id]).classList.add('active');
+}
+
+async function closeSession() {
+  if (!confirm('Close this session? Students will no longer be able to join.')) return;
+  const sessionData = await storageLoad(storageKey('session'));
+  if (sessionData) { sessionData.active = false; await storageSave(storageKey('session'), sessionData); }
+  stopPolling();
+  showScreen('screenLanding');
+}
+
+// ═══════════════════════ FACTION VIEW ═══════════════════════
+
+function bootFactionView() {
+  document.getElementById('factionTitle').textContent = STATE.myFaction;
+  document.getElementById('factionGame').textContent = STATE.game + ' · ' + STATE.sessionCode;
+
+  const recip = document.getElementById('composeRecipient');
+  recip.innerHTML = '';
+  STATE.factions.filter(f => f !== STATE.myFaction).forEach(f => {
+    const o = document.createElement('option');
+    o.value = f; o.textContent = f;
+    recip.appendChild(o);
+  });
+
+  renderFactionView();
+  startPolling(renderFactionView);
+}
+
+async function renderFactionView() {
+  const dispatches = await storageLoad(storageKey('dispatches')) || [];
+
+  // Inbox: approved/forwarded dispatches addressed to me
+  const inbox = dispatches.filter(d =>
+    d.status === 'approved' || d.status === 'forwarded'
+  ).filter(d => d.to === STATE.myFaction);
+
+  // Sent: dispatches I sent
+  const sent = dispatches.filter(d => d.from === STATE.myFaction);
+
+  // Count new (unread simulation — just count for now)
+  const icEl = document.getElementById('inboxCount');
+  if (inbox.length > 0) { icEl.textContent = inbox.length; icEl.style.display = 'inline'; }
+  else { icEl.style.display = 'none'; }
+
+  // Inbox
+  const inboxEl = document.getElementById('inboxMessages');
+  if (inbox.length === 0) {
+    inboxEl.innerHTML = `<div class="empty-queue"><div class="eq-icon">✉</div>No dispatches received</div>`;
+  } else {
+    inboxEl.innerHTML = inbox.reverse().map(d => {
+      const isOffice = d.from === 'Telegraph Office';
+      const isAnon   = d.from === '[ Anonymous ]';
+      const isBcast  = d.isBroadcast;
+      let stampLabel = 'APPROVED';
+      let stampClass = '';
+      if (d.isIntercept)   { stampLabel = 'INTERCEPTED'; stampClass = 'intercepted'; }
+      if (isOffice)        { stampLabel = 'TELEGRAPH OFFICE'; }
+      if (isAnon)          { stampLabel = 'ANONYMOUS'; }
+      if (isBcast)         { stampLabel = 'BROADCAST'; }
+      return `
+      <div class="telegram ${d.isIntercept ? 'intercepted' : ''}">
+        <div class="telegram-header">
+          <span>${d.isIntercept
+            ? '[ Intercepted · Original: ' + d.originalFrom + ' → ' + d.originalTo + ' ]'
+            : 'From: ' + d.from}</span>
+          <span class="telegram-stamp ${stampClass}">${stampLabel}</span>
+        </div>
+        ${d.headline ? `<div style="font-family:var(--type-display);font-size:0.95rem;color:var(--ink);letter-spacing:0.05em;margin-bottom:8px;text-transform:uppercase">${escHtml(d.headline)}</div>` : ''}
+        <div class="telegram-body">${escHtml(d.periodText || d.body)}</div>
+        ${d.coverNote ? `<div class="telegram-cover">Note: ${escHtml(d.coverNote)}</div>` : ''}
+        <div style="font-size:0.6rem;color:rgba(26,18,8,0.3);margin-top:8px;letter-spacing:0.08em">${fmtTime(d.created)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Sent
+  const sentEl = document.getElementById('sentMessages');
+  if (sent.length === 0) {
+    sentEl.innerHTML = `<div class="empty-queue"><div class="eq-icon">✉</div>No dispatches sent</div>`;
+  } else {
+    sentEl.innerHTML = sent.reverse().map(d => `
+      <div class="sent-item">
+        <span class="sent-status ${d.status}">${d.status.toUpperCase()}</span>
+        To: ${d.to} · ${fmtTime(d.created)}<br>
+        <span style="font-style:italic;opacity:0.6">${escHtml((d.body || '').substring(0, 80))}${d.body && d.body.length > 80 ? '…' : ''}</span>
+      </div>`).join('');
+  }
+}
+
+async function sendDispatch() {
+  const to = document.getElementById('composeRecipient').value;
+  const body = document.getElementById('composeBody').value.trim();
+  if (!body) { alert('Write your dispatch before transmitting.'); return; }
+
+  const btn = document.getElementById('sendBtn');
+  const meta = document.getElementById('composeMeta');
+  btn.disabled = true;
+  btn.textContent = 'Transmitting…';
+  meta.textContent = '';
+
+  let periodText = body;
+  if (STATE.apiKey && STATE.apiKey.startsWith('sk-ant-')) {
+    meta.textContent = 'Encoding in period cipher…';
+    periodText = await rewriteAsTelegram(STATE.myFaction, to, body, STATE.game);
+  }
+
+  const dispatch = {
+    id: 'd-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+    from: STATE.myFaction,
+    to,
+    body,
+    periodText,
+    status: 'pending',
+    created: Date.now(),
+    decidedAt: null,
+    isIntercept: false,
+    forwardedTo: null,
+    coverNote: null
+  };
+
+  const dispatches = await storageLoad(storageKey('dispatches')) || [];
+  dispatches.push(dispatch);
+  await storageSave(storageKey('dispatches'), dispatches);
+
+  document.getElementById('composeBody').value = '';
+  btn.disabled = false;
+  btn.textContent = 'Transmit Dispatch';
+  meta.textContent = 'Dispatch transmitted. Awaiting instructor review.';
+  setTimeout(() => { meta.textContent = ''; }, 4000);
+  renderFactionView();
+}
+
+function switchFactionTab(id) {
+  document.querySelectorAll('#screenFaction .tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#screenFaction .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map = { ftabInbox: 'btnFtabInbox', ftabSent: 'btnFtabSent' };
+  document.getElementById(map[id]).classList.add('active');
+}
+
+function leaveFaction() {
+  if (!confirm('Leave this session?')) return;
+  stopPolling();
+  STATE.myFaction = null;
+  STATE.role = null;
+  document.getElementById('headerSessionBadge').style.display = 'none';
+  showScreen('screenLanding');
+}
+
+// ═══════════════════════ POLLING ═══════════════════════
+
+function startPolling(fn) {
+  stopPolling();
+  STATE.pollTimer = setInterval(fn, 4000);
+}
+
+function stopPolling() {
+  if (STATE.pollTimer) { clearInterval(STATE.pollTimer); STATE.pollTimer = null; }
+}
+
+// ═══════════════════════ UTILS ═══════════════════════
+
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ═══════════════════════ INSTRUCTOR COMPOSE ═══════════════════════
+
+function selectDispatchType(type) {
+  document.querySelectorAll('.dtype-card').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.dtype-card[data-type="${type}"]`).classList.add('active');
+  ['direct','anonymous','broadcast','impersonate'].forEach(t => {
+    document.getElementById('icp-' + t).style.display = t === type ? 'block' : 'none';
+  });
+  document.getElementById('icpFeedback').textContent = '';
+}
+
+async function sendInstructorDispatch(type) {
+  const fb = document.getElementById('icpFeedback');
+  fb.textContent = '';
+  fb.style.color = '#6bc96b';
+
+  const dispatches = await storageLoad(storageKey('dispatches')) || [];
+  const now = Date.now();
+
+  if (type === 'direct') {
+    const to   = document.getElementById('directRecipient').value;
+    const body = document.getElementById('directBody').value.trim();
+    if (!body) { fb.style.color='#e07070'; fb.textContent='Write a message first.'; return; }
+    const periodText = await rewriteAsTelegram('Telegraph Office', to, body, STATE.game);
+    dispatches.push({
+      id: 'd-' + now + '-' + Math.random().toString(36).substr(2,4),
+      from: 'Telegraph Office', to, body, periodText,
+      status: 'approved', instructorOriginated: true,
+      created: now, decidedAt: now,
+      isIntercept: false, forwardedTo: null, coverNote: null
+    });
+    document.getElementById('directBody').value = '';
+    fb.textContent = `Transmitted to ${to}.`;
+
+  } else if (type === 'anonymous') {
+    const to   = document.getElementById('anonRecipient').value;
+    const body = document.getElementById('anonBody').value.trim();
+    if (!body) { fb.style.color='#e07070'; fb.textContent='Write a message first.'; return; }
+    const periodText = await rewriteAsTelegram('Unknown', to, body, STATE.game);
+    dispatches.push({
+      id: 'd-' + now + '-' + Math.random().toString(36).substr(2,4),
+      from: '[ Anonymous ]', to, body, periodText,
+      status: 'approved', instructorOriginated: true,
+      created: now, decidedAt: now,
+      isIntercept: false, forwardedTo: null, coverNote: null
+    });
+    document.getElementById('anonBody').value = '';
+    fb.textContent = `Anonymous tip delivered to ${to}.`;
+
+  } else if (type === 'broadcast') {
+    const body     = document.getElementById('broadcastBody').value.trim();
+    const headline = document.getElementById('broadcastHeadline').value.trim();
+    if (!body) { fb.style.color='#e07070'; fb.textContent='Write a message first.'; return; }
+    const periodText = await rewriteAsTelegram('Telegraph Office', 'All Factions', body, STATE.game);
+    STATE.factions.forEach((faction, i) => {
+      dispatches.push({
+        id: 'd-' + (now + i) + '-' + Math.random().toString(36).substr(2,4),
+        from: 'Telegraph Office', to: faction, body, periodText,
+        headline: headline || null,
+        status: 'approved', instructorOriginated: true, isBroadcast: true,
+        created: now, decidedAt: now,
+        isIntercept: false, forwardedTo: null, coverNote: null
+      });
+    });
+    document.getElementById('broadcastBody').value = '';
+    document.getElementById('broadcastHeadline').value = '';
+    fb.textContent = `Broadcast transmitted to all ${STATE.factions.length} factions.`;
+
+  } else if (type === 'impersonate') {
+    const from = document.getElementById('impersonateFrom').value;
+    const to   = document.getElementById('impersonateTo').value;
+    const body = document.getElementById('impersonateBody').value.trim();
+    if (from === to) { fb.style.color='#e07070'; fb.textContent='Sender and recipient must be different factions.'; return; }
+    if (!body) { fb.style.color='#e07070'; fb.textContent='Write a message first.'; return; }
+    const periodText = await rewriteAsTelegram(from, to, body, STATE.game);
+    dispatches.push({
+      id: 'd-' + now + '-' + Math.random().toString(36).substr(2,4),
+      from, to, body, periodText,
+      status: 'approved', instructorOriginated: true, isImpersonation: true,
+      created: now, decidedAt: now,
+      isIntercept: false, forwardedTo: null, coverNote: null
+    });
+    document.getElementById('impersonateBody').value = '';
+    fb.textContent = `Dispatch sent as ${from} to ${to}.`;
+  }
+
+  await storageSave(storageKey('dispatches'), dispatches);
+  setTimeout(() => { fb.textContent = ''; }, 4000);
+}
+
+// ═══════════════════════ PIN SECURITY ═══════════════════════
+
+async function hashPin(pin, salt) {
+  const enc = new TextEncoder();
+  const data = enc.encode(pin + salt);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function verifyPin() {
+  const code = document.getElementById('pinSessionCode').value.trim().toUpperCase();
+  const pin  = document.getElementById('pinEntry').value.trim();
+  const errEl = document.getElementById('pinError');
+  errEl.style.display = 'none';
+
+  if (!code || !pin) { errEl.textContent = 'Enter both session code and PIN.'; errEl.style.display = 'block'; return; }
+
+  STATE.sessionCode = code;
+  const sessionData = await storageLoad(storageKey('session'));
+  if (!sessionData || !sessionData.active) {
+    errEl.textContent = 'Session not found or closed.'; errEl.style.display = 'block'; return;
+  }
+
+  const attempt = await hashPin(pin, code);
+  if (attempt !== sessionData.pinHash) {
+    errEl.textContent = 'Incorrect PIN. Try again.'; errEl.style.display = 'block';
+    document.getElementById('pinEntry').value = '';
+    return;
+  }
+
+  STATE.game = sessionData.game;
+  STATE.factions = sessionData.factions;
+  STATE.role = 'instructor';
+
+  document.getElementById('headerSessionBadge').textContent = STATE.sessionCode;
+  document.getElementById('headerSessionBadge').style.display = 'block';
+
+  bootInstructorConsole();
+  showScreen('screenInstructor');
+}
+
+// ═══════════════════════ INIT ═══════════════════════
+
+// Restore API key if saved
+const savedKey = localStorage.getItem('sdc_apikey');
+if (savedKey) {
+  STATE.apiKey = savedKey;
+  document.getElementById('globalApiKey').value = savedKey;
+  updateApiStatus();
+}
+document.getElementById('globalApiKey').addEventListener('change', function() {
+  localStorage.setItem('sdc_apikey', this.value.trim());
+});
+
+// ── URL PARAM GATE ──
+// Instructor card only appears at ?instructor in the URL.
+// Share the plain URL with students; keep the ?instructor URL for yourself.
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('instructor')) {
+    document.getElementById('apiKeySection').style.display = 'block';
+    const row = document.getElementById('choiceRow');
+    const instructorCard = document.createElement('div');
+    instructorCard.className = 'choice-card';
+    instructorCard.innerHTML = `
+      <div class="card-icon">⚖️</div>
+      <div class="card-title">Instructor</div>
+      <div class="card-desc">Open a new session. Review and control all dispatches before delivery.</div>`;
+    instructorCard.onclick = () => showScreen('screenInstructorSetup');
+    row.insertBefore(instructorCard, row.firstChild);
+
+    // Also wire up the PIN screen as an alternative entry for returning instructors
+    const pinCard = document.createElement('div');
+    pinCard.className = 'choice-card';
+    pinCard.style.cssText = 'border-color:rgba(60,60,139,0.4)';
+    pinCard.innerHTML = `
+      <div class="card-icon">🔐</div>
+      <div class="card-title">Rejoin as Instructor</div>
+      <div class="card-desc">Re-enter an existing session with your session code and PIN.</div>`;
+    pinCard.onclick = () => showScreen('screenInstructorPin');
+    row.appendChild(pinCard);
+  }
+})();
+
+</script>
+</body>
+</html>
