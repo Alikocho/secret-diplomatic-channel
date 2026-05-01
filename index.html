@@ -689,6 +689,7 @@
     .choice-row { grid-template-columns: 1fr; }
   }
 </style>
+<script>/* SERVER_API_AVAILABLE */</script>
 </head>
 <body>
 
@@ -715,15 +716,6 @@
         <div class="card-icon">📜</div>
         <div class="card-title">Student / Faction</div>
         <div class="card-desc">Join a session with your game code. Claim your faction and begin correspondence.</div>
-      </div>
-    </div>
-    <div id="apiKeySection" style="display:none">
-      <div class="api-key-section">
-        <label>Anthropic API Key (for period voice rewriting)</label>
-        <div class="api-key-row">
-          <input type="password" id="globalApiKey" placeholder="sk-ant-..." oninput="saveApiKey(this.value)">
-          <button class="btn sm" onclick="testApiKey()">Test</button>
-        </div>
       </div>
     </div>
     <span class="back-link" style="color:rgba(184,134,11,0.25);font-size:0.6rem;letter-spacing:0.1em">
@@ -1033,61 +1025,39 @@ async function storageDelete(key) {
   try { await window.storage.delete(key, true); } catch(e) {}
 }
 
-// ═══════════════════════ API KEY ═══════════════════════
+// ═══════════════════════ CLAUDE API (server-proxied) ═══════════════════════
+// The API key lives in Railway env vars — never in the browser.
+// The server exposes /rewrite and sets window.SERVER_API_AVAILABLE.
 
-function saveApiKey(v) {
-  STATE.apiKey = v.trim();
-  updateApiStatus();
+function apiAvailable() {
+  return typeof window.SERVER_API_AVAILABLE !== 'undefined' && window.SERVER_API_AVAILABLE === true;
 }
 
 function updateApiStatus() {
   const el = document.getElementById('apiStatus');
-  if (STATE.apiKey && STATE.apiKey.startsWith('sk-ant-')) {
-    el.textContent = '● ONLINE';
+  if (apiAvailable()) {
+    el.textContent = '● PERIOD VOICE ON';
     el.style.color = '#6bc96b';
-  } else if (STATE.apiKey) {
-    el.textContent = '● KEY SET';
-    el.style.color = 'var(--amber)';
   } else {
-    el.textContent = '● OFFLINE';
+    el.textContent = '● PERIOD VOICE OFF';
     el.style.color = 'rgba(184,134,11,0.4)';
   }
 }
 
-async function testApiKey() {
-  if (!STATE.apiKey) { alert('Enter an API key first.'); return; }
-  try {
-    const r = await callClaude('Say only: KEY VALID', [{ role: 'user', content: 'Confirm.' }], 20);
-    alert('Key works: ' + r.substring(0, 40));
-  } catch(e) { alert('Key error: ' + e.message); }
-}
-
-// ═══════════════════════ CLAUDE API ═══════════════════════
-
-async function callClaude(system, messages, maxTokens = 500) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: maxTokens,
-      system,
-      messages
-    })
-  });
-  if (!res.ok) throw new Error(await res.text());
-  const data = await res.json();
-  return data.content.filter(b => b.type === 'text').map(b => b.text).join('');
-}
-
 async function rewriteAsTelegram(from, to, body, game) {
-  if (!STATE.apiKey || !STATE.apiKey.startsWith('sk-ant-')) return body;
-  const system = `You are a period-authentic telegraph operator. Rewrite the following diplomatic message as it would appear in an actual period telegram or diplomatic cable for the scenario: ${game}. Use period-appropriate language, formal register, and telegraph conventions (STOP punctuation, dateline, brief but precise wording). Keep the strategic content intact but make it feel historically real. Return only the rewritten text, no preamble.`;
+  if (!apiAvailable()) return body;
   try {
-    return await callClaude(system, [{
-      role: 'user',
-      content: `FROM: ${from}\nTO: ${to}\nMESSAGE: ${body}`
-    }], 300);
+    const res = await fetch('/rewrite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: `You are a period-authentic telegraph operator. Rewrite the following diplomatic message as it would appear in an actual period telegram or diplomatic cable for the scenario: ${game}. Use period-appropriate language, formal register, and telegraph conventions (STOP punctuation, dateline, brief but precise wording). Keep the strategic content intact but make it feel historically real. Return only the rewritten text, no preamble.`,
+        messages: [{ role: 'user', content: `FROM: ${from}\nTO: ${to}\nMESSAGE: ${body}` }]
+      })
+    });
+    if (!res.ok) return body;
+    const data = await res.json();
+    return data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || body;
   } catch(e) { return body; }
 }
 
@@ -1679,16 +1649,7 @@ async function verifyPin() {
 
 // ═══════════════════════ INIT ═══════════════════════
 
-// Restore API key if saved
-const savedKey = localStorage.getItem('sdc_apikey');
-if (savedKey) {
-  STATE.apiKey = savedKey;
-  document.getElementById('globalApiKey').value = savedKey;
-  updateApiStatus();
-}
-document.getElementById('globalApiKey').addEventListener('change', function() {
-  localStorage.setItem('sdc_apikey', this.value.trim());
-});
+updateApiStatus();
 
 // ── URL PARAM GATE ──
 // Instructor card only appears at ?instructor in the URL.
@@ -1696,7 +1657,6 @@ document.getElementById('globalApiKey').addEventListener('change', function() {
 (function() {
   const params = new URLSearchParams(window.location.search);
   if (params.has('instructor')) {
-    document.getElementById('apiKeySection').style.display = 'block';
     const row = document.getElementById('choiceRow');
     const instructorCard = document.createElement('div');
     instructorCard.className = 'choice-card';
