@@ -1005,24 +1005,36 @@ const STATE = {
 };
 
 // ═══════════════════════ STORAGE HELPERS ═══════════════════════
+// All reads/writes go to the server's in-memory store via REST.
+// Endpoints: GET /store/:code/:key  POST /store/:code/:key  DELETE /store/:code/:key
 
-function storageKey(suffix) { return `sdc:${STATE.sessionCode}:${suffix}`; }
+function storageKey(suffix) { return suffix; }   // key is just the suffix; code is in the URL path
+
+function storeUrl(key) {
+  return `/store/${encodeURIComponent(STATE.sessionCode)}/${encodeURIComponent(key)}`;
+}
 
 async function storageSave(key, value) {
   try {
-    await window.storage.set(key, JSON.stringify(value), true);
+    await fetch(storeUrl(key), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value })
+    });
   } catch(e) { console.warn('Storage save failed', e); }
 }
 
 async function storageLoad(key) {
   try {
-    const r = await window.storage.get(key, true);
-    return r ? JSON.parse(r.value) : null;
+    const r = await fetch(storeUrl(key));
+    if (r.status === 404) return null;
+    const data = await r.json();
+    return data.value !== undefined ? data.value : null;
   } catch(e) { return null; }
 }
 
 async function storageDelete(key) {
-  try { await window.storage.delete(key, true); } catch(e) {}
+  try { await fetch(storeUrl(key), { method: 'DELETE' }); } catch(e) {}
 }
 
 // ═══════════════════════ CLAUDE API (server-proxied) ═══════════════════════
