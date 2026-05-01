@@ -1131,33 +1131,13 @@ async function joinSession() {
   if (code.length < 4) { alert('Enter a valid session code.'); return; }
   STATE.sessionCode = code;
 
-  const url = storeUrl(storageKey('session'));
-  let sessionData = null;
-  try {
-    const r = await fetch(url);
-    const status = r.status;
-    const text = await r.text();
-    if (status === 404) {
-      alert(`Debug: No session found at ${url}\nServer returned 404.`);
-      return;
-    }
-    if (!r.ok) {
-      alert(`Debug: Server error ${status} at ${url}\n${text}`);
-      return;
-    }
-    const data = JSON.parse(text);
-    sessionData = data.value;
-    if (!sessionData) {
-      alert(`Debug: Server responded OK but value was empty.\nRaw: ${text}`);
-      return;
-    }
-  } catch(e) {
-    alert(`Debug: fetch failed entirely.\nURL tried: ${url}\nError: ${e.message}`);
+  const sessionData = await storageLoad(storageKey('session'));
+  if (!sessionData) {
+    alert('Session not found. Check your code and try again.');
     return;
   }
-
   if (!sessionData.active) {
-    alert('Session is closed. Ask your instructor to check the console.');
+    alert('This session has been closed by the instructor.');
     return;
   }
 
