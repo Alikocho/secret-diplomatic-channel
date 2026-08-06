@@ -8,7 +8,7 @@ Built for RTTP's July 1914 and similar negotiation games, but works with any sce
 
 ## How it works
 
-You open a session and get a six-character code — something like `JULY42`. Students open the app on their phones or laptops, enter the code, and claim a faction. First to claim it owns it for the session.
+You open a session and get a six-character code — something like `JULY14`. Students open the app on their phones or laptops, enter the code, and claim a faction. First to claim it owns it for the session.
 
 From there, any faction can compose a dispatch to any other faction. It goes into your queue immediately and stays invisible to the recipient until you act on it. You can approve it, hold it until later, block it entirely, or intercept it — forwarding a copy to a third faction with an optional cover note.
 
@@ -77,7 +77,7 @@ Share the plain URL with students. Keep the `?instructor` URL to yourself.
 ### Connect your domain (Cloudflare)
 
 1. In Railway: **Settings → Networking → Custom Domain** — add your subdomain (e.g. `dispatch.yourdomain.com`). Railway gives you a CNAME target.
-2. In Cloudflare: **DNS → Add record**
+2. Via your webhosting service: **DNS → Add record**
 
    | Field | Value |
    |-------|-------|
