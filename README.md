@@ -68,7 +68,7 @@ Share the plain URL with students. Keep the `?instructor` URL to yourself.
 
 ### Deploy to Railway
 
-1. Push the contents of `railway-deploy.zip` to a GitHub repository.
+1. Clone the contents of this repository to your own GitHub repository.
 2. Create a new project at [railway.app](https://railway.app) and connect the repo.
 3. In your Railway service, go to **Variables** and add:
    - `ANTHROPIC_API_KEY` — your Anthropic API key (optional, enables period voice)
