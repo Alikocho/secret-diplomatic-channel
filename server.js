@@ -7,8 +7,6 @@ const PORT = process.env.PORT || 3000;
 const HTML = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const API_KEY = process.env.ANTHROPIC_API_KEY || '';
 
-// ── In-memory store ──────────────────────────────────────────────────────────
-// store[sessionCode][key] = value (parsed JS object/array/string)
 const store = {};
 
 function getStore(code, key) {
@@ -22,7 +20,6 @@ function deleteStore(code, key) {
   if (store[code]) delete store[code][key];
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -43,7 +40,6 @@ function json(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
-// ── Server ───────────────────────────────────────────────────────────────────
 http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
   const method = req.method;
@@ -57,14 +53,13 @@ http.createServer(async (req, res) => {
     res.end(); return;
   }
 
-  // POST /rewrite — Anthropic proxy
   if (method === 'POST' && url === '/rewrite') {
     if (!API_KEY) { json(res, 503, { error: 'API key not configured.' }); return; }
     let payload;
     try { payload = await readBody(req); } catch(e) { json(res, 400, { error: 'Bad JSON' }); return; }
 
     const postData = JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 400,
       system: payload.system,
       messages: payload.messages
@@ -94,7 +89,6 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  // GET /store/:code/:key
   const storeMatch = url.match(/^\/store\/([^/]+)\/([^/]+)$/);
   if (storeMatch) {
     const [, code, key] = storeMatch;
@@ -118,7 +112,6 @@ http.createServer(async (req, res) => {
     }
   }
 
-  // GET /* — serve the app
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
   const served = HTML.replace(
     '/* SERVER_API_AVAILABLE */',
