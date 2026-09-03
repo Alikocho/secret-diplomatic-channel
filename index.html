@@ -742,9 +742,9 @@
       <div class="field">
         <label>Game / Scenario</label>
         <select id="setupGame">
-          <option value="July 1914">July 1914</option>
-          <option value="Japan 1941">Japan 1941</option>
-          <option value="Yalta 1945">Yalta 1945</option>
+          <option value="July 1914">July 1914 — Juggernaut</option>
+          <option value="Japan 1941">Japan 1941 — Fate of a Nation</option>
+          <option value="Yalta 1945">Yalta 1945 — Restoring the World</option>
           <option value="Custom">Custom scenario</option>
         </select>
       </div>
@@ -754,12 +754,12 @@
       </div>
       <div class="field">
         <label>Factions (one per line)</label>
-        <textarea id="setupFactions" rows="6">Germany
+        <textarea id="setupFactions" rows="7">Britain
 Austria-Hungary
 Russia
-France
-Britain
 Ottoman Empire
+Germany
+France
 Italy</textarea>
       </div>
       <button class="btn" onclick="createSession()">Open Session</button>
@@ -1088,8 +1088,41 @@ function showScreen(id) {
 
 // ═══════════════════════ INSTRUCTOR SETUP ═══════════════════════
 
+// ═══════════════════════ GAME LIBRARY ═══════════════════════
+// Add faction lists here as you gather them from game materials.
+// 'Custom' is always available as a blank slate.
+
+const GAME_LIBRARY = {
+  'July 1914': [
+    'Britain',
+    'France',
+    'Russia',
+    'Ottoman Empire',
+    'Germany',
+    'Austria-Hungary',
+    'Italy'
+  ],
+  'Japan 1941': [
+    'Army',
+    'Navy',
+    'Imperial Court'
+  ],
+  'Yalta 1945': [
+    'Great Britain',
+    'United States',
+    'Soviet Union'
+  ]
+};
+
 document.getElementById('setupGame').addEventListener('change', function() {
-  document.getElementById('customGameField').style.display = this.value === 'Custom' ? 'block' : 'none';
+  const val = this.value;
+  document.getElementById('customGameField').style.display = val === 'Custom' ? 'block' : 'none';
+  const factions = GAME_LIBRARY[val];
+  if (factions && factions.length > 0) {
+    document.getElementById('setupFactions').value = factions.join('\n');
+  } else if (val !== 'Custom') {
+    document.getElementById('setupFactions').value = '';
+  }
 });
 
 function generateCode() {
