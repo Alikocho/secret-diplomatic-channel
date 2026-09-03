@@ -1069,7 +1069,7 @@ async function rewriteAsTelegram(from, to, body, game) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: `You are a period-authentic telegraph operator. Rewrite the following diplomatic message as it would appear in an actual period telegram or diplomatic cable for the scenario: ${game}. Use period-appropriate language, formal register, and telegraph conventions (STOP punctuation, dateline, brief but precise wording). Keep the strategic content intact but make it feel historically real. Return only the rewritten text, no preamble.`,
+        system: `You are a period-authentic telegraph operator. Rewrite the following diplomatic message as it would appear in an actual period telegram or diplomatic cable for the scenario: ${game}. Use period-appropriate language, formal register, and telegraph conventions (STOP punctuation, brief but precise wording). Do not include any dates or datelines unless a specific date is mentioned in the original message. Keep the strategic content intact but make it feel historically real. Return only the rewritten text, no preamble.`,
         messages: [{ role: 'user', content: `FROM: ${from}\nTO: ${to}\nMESSAGE: ${body}` }]
       })
     });
@@ -1532,7 +1532,7 @@ async function sendDispatch() {
   meta.textContent = '';
 
   let periodText = body;
-  if (STATE.apiKey && STATE.apiKey.startsWith('sk-ant-')) {
+  if (apiAvailable()) {
     meta.textContent = 'Encoding in period cipher…';
     periodText = await rewriteAsTelegram(STATE.myFaction, to, body, STATE.game);
   }
