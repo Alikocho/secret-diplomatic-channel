@@ -60,7 +60,7 @@ http.createServer(async (req, res) => {
 
     const postData = JSON.stringify({
       model: 'claude-sonnet-5',
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: payload.system,
       messages: payload.messages
     });
