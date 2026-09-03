@@ -722,8 +722,8 @@
       All messages stored locally in this session only
     </span>
     <div style="margin-top:32px;font-size:0.58rem;color:rgba(184,134,11,0.2);letter-spacing:0.14em;text-transform:uppercase">
-  Designed by Alastair Kocho-Williams · Cold Alchemy Games
-</div>
+      Designed by Alastair Kocho-Williams · Cold Alchemy Games
+    </div>
   </div>
 </div>
 
@@ -742,9 +742,9 @@
       <div class="field">
         <label>Game / Scenario</label>
         <select id="setupGame">
-          <option value="July 1914">July 1914</option>
-          <option value="Japan 1941">Japan 1941</option>
-          <option value="Yalta 1945">Yalta 1945</option>
+          <option value="July 1914">July 1914 — Juggernaut</option>
+          <option value="Japan 1941">Japan 1941 — Fate of a Nation</option>
+          <option value="Yalta 1945">Yalta 1945 — Restoring the World</option>
           <option value="Custom">Custom scenario</option>
         </select>
       </div>
@@ -794,13 +794,17 @@ Italy</textarea>
     <div class="tagline" id="claimGameLabel"></div>
     <div class="form-panel">
       <div class="field">
-        <label>Available Factions</label>
+        <label>Select Your Faction</label>
         <select id="claimFactionSelect"></select>
       </div>
-      <div id="claimTakenMsg" style="display:none;font-size:0.72rem;color:#e07070;margin-bottom:10px;letter-spacing:0.05em">
-        That faction has already been claimed. Choose another.
+      <div id="claimTakenMsg" style="display:none;background:rgba(139,26,26,0.2);border:1px solid rgba(192,57,43,0.4);padding:12px 14px;margin-bottom:12px;font-size:0.75rem;line-height:1.6;letter-spacing:0.03em">
+        This faction has already been claimed.<br>
+        If you are the original player rejoining after a refresh, click <strong>Rejoin</strong>.<br>
+        Otherwise choose a different faction.
       </div>
-      <button class="btn" onclick="claimFaction()">Claim Faction</button>
+      <div id="claimActions">
+        <button class="btn" onclick="claimFaction()">Claim Faction</button>
+      </div>
       <br><span class="back-link" onclick="showScreen('screenStudentJoin')">← Back</span>
     </div>
   </div>
@@ -1148,22 +1152,22 @@ async function joinSession() {
   STATE.factions = sessionData.factions;
 
   const claimed = await storageLoad(storageKey('claimed')) || {};
-  const available = STATE.factions.filter(f => !claimed[f]);
-
-  if (available.length === 0) {
-    alert('All factions have been claimed in this session.');
-    return;
-  }
 
   document.getElementById('claimGameLabel').textContent = sessionData.game;
   const sel = document.getElementById('claimFactionSelect');
   sel.innerHTML = '';
-  available.forEach(f => {
+  STATE.factions.forEach(f => {
     const o = document.createElement('option');
-    o.value = f; o.textContent = f;
+    o.value = f;
+    o.textContent = claimed[f] ? `${f} (claimed)` : f;
     sel.appendChild(o);
   });
+  // Default selection to first unclaimed faction if any
+  const firstFree = STATE.factions.find(f => !claimed[f]);
+  if (firstFree) sel.value = firstFree;
+
   document.getElementById('claimTakenMsg').style.display = 'none';
+  document.getElementById('claimActions').innerHTML = '<button class="btn" onclick="claimFaction()">Claim Faction</button>';
   showScreen('screenFactionClaim');
 }
 
@@ -1171,8 +1175,13 @@ async function claimFaction() {
   const faction = document.getElementById('claimFactionSelect').value;
   const claimed = await storageLoad(storageKey('claimed')) || {};
   if (claimed[faction]) {
+    // Show rejoin prompt instead of blocking outright
     document.getElementById('claimTakenMsg').style.display = 'block';
-    await joinSession();
+    document.getElementById('claimActions').innerHTML = `
+      <div style="display:flex;gap:8px">
+        <button class="btn approve sm" style="flex:1" onclick="rejoinFaction('${faction}')">Rejoin as ${faction}</button>
+        <button class="btn ghost sm" style="flex:1" onclick="resetClaimForm()">Choose Another</button>
+      </div>`;
     return;
   }
   claimed[faction] = true;
@@ -1186,6 +1195,23 @@ async function claimFaction() {
 
   bootFactionView();
   showScreen('screenFaction');
+}
+
+async function rejoinFaction(faction) {
+  // No need to update claimed — faction is already marked claimed
+  STATE.myFaction = faction;
+  STATE.role = 'faction';
+
+  document.getElementById('headerSessionBadge').textContent = faction + ' · ' + STATE.sessionCode;
+  document.getElementById('headerSessionBadge').style.display = 'block';
+
+  bootFactionView();
+  showScreen('screenFaction');
+}
+
+function resetClaimForm() {
+  document.getElementById('claimTakenMsg').style.display = 'none';
+  document.getElementById('claimActions').innerHTML = '<button class="btn" onclick="claimFaction()">Claim Faction</button>';
 }
 
 // ═══════════════════════ INSTRUCTOR CONSOLE ═══════════════════════
@@ -1219,8 +1245,19 @@ async function renderFactionRoster() {
   list.innerHTML = STATE.factions.map(f => `
     <li>
       <span class="fname">${f}</span>
-      <span class="fstatus ${claimed[f] ? 'claimed' : 'open'}">${claimed[f] ? 'Joined' : 'Open'}</span>
+      <span style="display:flex;align-items:center;gap:6px">
+        <span class="fstatus ${claimed[f] ? 'claimed' : 'open'}">${claimed[f] ? 'Joined' : 'Open'}</span>
+        ${claimed[f] ? `<button class="btn sm ghost" style="padding:2px 7px;font-size:0.55rem" onclick="releaseFaction('${f}')">Release</button>` : ''}
+      </span>
     </li>`).join('');
+}
+
+async function releaseFaction(faction) {
+  if (!confirm(`Release ${faction}? The student will need to reclaim it.`)) return;
+  const claimed = await storageLoad(storageKey('claimed')) || {};
+  delete claimed[faction];
+  await storageSave(storageKey('claimed'), claimed);
+  renderFactionRoster();
 }
 
 async function renderQueues() {
