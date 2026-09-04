@@ -318,6 +318,7 @@
     animation: slideIn 0.3s ease;
   }
   @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .dispatch-card.no-anim { animation: none; }
   .dispatch-card.pending { border-left-color: var(--amber); }
   .dispatch-card.approved { border-left-color: #3d8b3d; opacity: 0.6; }
   .dispatch-card.blocked { border-left-color: var(--red-wax); opacity: 0.5; }
@@ -1246,8 +1247,9 @@ function resetClaimForm() {
   document.getElementById('claimActions').innerHTML = '<button class="btn" onclick="claimFaction()">Claim Faction</button>';
 }
 
-// ═══════════════════════ INSTRUCTOR CONSOLE ═══════════════════════
+═══════════════════════ INSTRUCTOR CONSOLE ═══════════════════════
 
+const seenDispatchIds = new Set();
 function bootInstructorConsole() {
   document.getElementById('sidebarGame').textContent = STATE.game;
   document.getElementById('sidebarCode').textContent = STATE.sessionCode;
@@ -1313,13 +1315,14 @@ async function renderQueues() {
   if (pending.length === 0) {
     pQ.innerHTML = `<div class="empty-queue"><div class="eq-icon">✦</div>No dispatches awaiting review</div>`;
   } else {
-    pQ.innerHTML = pending.map(d => renderDispatchCard(d, true)).join('');
+    pQ.innerHTML = pending.map(d => renderDispatchCard(d, true, !seenDispatchIds.has(d.id))).join('');
   }
 
   // All tab
   document.getElementById('allQueue').innerHTML = all.length === 0
     ? `<div class="empty-queue"><div class="eq-icon">✦</div>No dispatches yet</div>`
-    : all.map(d => renderDispatchCard(d, d.status === 'pending')).join('');
+    : all.map(d => renderDispatchCard(d, d.status === 'pending', !seenDispatchIds.has(d.id))).join('');
+  dispatches.forEach(d => seenDispatchIds.add(d.id));
 
   // Archive as plain text
   document.getElementById('archivePane').innerHTML = dispatches.length === 0
@@ -1336,14 +1339,14 @@ async function renderQueues() {
     `${dispatches.length} total · ${pending.length} pending · session ${STATE.sessionCode}`;
 }
 
-function renderDispatchCard(d, showActions) {
+function renderDispatchCard(d, showActions, isNew = false) {
   const statusBadge = showActions ? '' : `<span class="dispatch-status ${d.status}">${d.status}</span>`;
   const forwardOptions = STATE.factions
     .filter(f => f !== d.from && f !== d.to)
     .map(f => `<option value="${f}">${f}</option>`).join('');
 
   return `
-  <div class="dispatch-card ${d.status}" id="card-${d.id}">
+  <div class="dispatch-card ${d.status}${isNew ? '' : ' no-anim'}" id="card-${d.id}">
     <div class="dispatch-header">
       <div class="dispatch-routing">
         ${d.from} <span class="arrow">→</span> ${d.to}
