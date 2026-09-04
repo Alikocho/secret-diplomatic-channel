@@ -110,3 +110,15 @@ Multiple simultaneous sessions work fine — each has its own code and isolated 
 All session data is scoped to the shared storage tied to this deployment. Nothing is sent to third parties beyond the Anthropic API call for period voice rewriting (if enabled).
 
 Students identify only by faction name. No accounts, no personal data collected.
+
+---
+
+## Reacting to the Past
+
+This tool is designed as a companion to Reacting to the Past (RTTP) games. It does not reproduce or distribute any RTTP game materials. Faction names, scenario titles, and game content remain subject to the terms of the RTTP Consortium. Instructors using this tool should ensure they hold appropriate access to the relevant game materials.
+
+---
+
+## License
+
+Released under the MIT License. Free to use, modify, and redistribute with attribution. If you adapt this tool for your own RTTP classroom or build on it, a note crediting Alastair Kocho-Williams and Cold Alchemy Games is appreciated but not required.
